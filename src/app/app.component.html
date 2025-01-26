@@ -1,31 +1,57 @@
 <div class="container">
-  <h1>Upload Files</h1>
-  <input type="file" (change)="onFileSelected($event)" [disabled]="isDisabled"  accept=".txt" />
+  <h1>File Slicer</h1>
+  <input type="file" (change)="onFileSelected($event)" accept=".txt" />
+  <p *ngIf="realTotal > 0"><strong>Tamanho total do arquivo:</strong> {{ realTotal }} bytes</p>
   <form [formGroup]="form">
-    <label for="chunckSize">Chunk size (bytes)</label>
-    <input class="input-text" placeholder="Type the chunk size" #chunkSize (input)="setChunkSize(chunkSize)" type="number" formControlName="chunckSize" name="chunckSize">
+    <label for="chunckSize">Tamanho (bytes)</label>
+    <input class="input-text" placeholder="50 bytes" #chunkSize (input)="setChunkSize(chunkSize)" type="number" formControlName="chunckSize" name="chunckSize">
     <br>
-    <label for="chunckSize">Never split line</label>
+    <label for="chunckSize">Nunca dividir a linha</label>
     <input type="checkbox" formControlName="neverSplitLine" name="neverSplitLine" checked id="">
   </form>
-  <button [disabled]="!file" (click)="uploadFile()">Upload</button>
+  <button [disabled]="!canSplit()" (click)="splitFile()">Cortar</button>
+  <button [disabled]="true" (click)="uploadFile()">Upload</button>
   <div class="progress" *ngIf="progress">Uploading: {{ progress }}%</div>
+
+
 </div>
 
+
+<div *ngIf="showModal" class="error-modal-overlay">
+  <div class="error-modal-container">
+    <div class="error-modal-header">
+      <h3>Atenção</h3>
+      <button (click)="closeModal()" class="close-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+    <div class="error-modal-body">
+      <p class="error-message">{{ errorMessage }}</p>
+      <p class="error-detail">{{ errorDetail }}</p>
+    </div>
+    <div class="error-modal-footer">
+      <button (click)="closeModal()" class="close-modal-button">Fechar</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="container files" *ngIf="files.length > 0">
-  <h2>Uploaded Files</h2>
+  <h2>Arquivos (files.length)</h2>
   <div class="file-item" *ngFor="let file of files">
     <div>
       <p><strong>Name:</strong> {{ file.name }}</p>
       <p><strong>Size:</strong> {{ file.size }} bytes</p>
     </div>
-    <a [href]="file.link" target="_blank">View File</a>
+    <a [href]="file.link" target="_blank">Visualizar</a>
   </div>
+
 </div>
 
 <div class="container totals">
-  <p><strong>Total Size:</strong> {{ total }} KB</p>
-  <p><strong>Real Total:</strong> {{ realTotal }} KB</p>
-
-  <p>By: Lucas</p>
+  <!-- <p><strong>Total Size:</strong> {{ total }} KB</p> -->
+  <p>Feito por Lucas</p>
 </div>
+
