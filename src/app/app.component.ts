@@ -127,11 +127,14 @@ export class AppComponent {
       let contentBuffer = ''; // Acumulador para os dados
       const files: any = []; // Para armazenar os pedaços processados
 
+      let count = 0;
       // Adiciona um novo chunk e atualiza tamanho total da somas dos arquivos
       const addFileChunk = (content: string, index: number): void => {
         const chunk: any = new Blob([content], { type: 'text/plain' });
         chunk.link = URL.createObjectURL(chunk);
-        chunk.name = index + '_' + this.file?.name;
+        console.log('creating name: ', count);
+
+        chunk.name = count++ + '_' + this.file?.name;
         files.push(chunk);
         this.total += chunk.size;
       };
@@ -140,6 +143,8 @@ export class AppComponent {
       reader.onload = (evt: ProgressEvent<FileReader>) => {
         const fileContent = (evt.target?.result as string).split('\n');
         fileContent.forEach((line, index) => {
+          console.log(index);
+
           const isLastLine = index === fileContent.length - 1;
 
           /*
