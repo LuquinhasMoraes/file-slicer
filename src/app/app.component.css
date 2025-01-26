@@ -28,6 +28,25 @@ input[type='file'] {
   max-width: 300px;
   text-align: center;
 }
+
+form {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+form > label {
+  color: #5f5f5f
+}
+.input-text {
+  width: 200px;
+  height: 25px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  margin: 15px;
+  padding: 5px;
+}
+
 button {
   display: block;
   width: 100%;

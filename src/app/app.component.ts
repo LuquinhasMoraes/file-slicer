@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -12,58 +13,106 @@ export class AppComponent {
   total: number = 0;
   realTotal: number = 0;
 
+  form = this.formBuilder.group({
+    chunckSize: ['', Validators.required],
+    neverSplitLine: [true]
+  });
+
+  chunkSize = 0;
+  isDisabled = true;
+
+  constructor(
+    private formBuilder: FormBuilder,
+  ) {}
+
+  setChunkSize(input: any) {
+    this.chunkSize = Number(input.value);
+    if(this.chunkSize > 0) {
+      this.isDisabled = false;
+    } else {
+      this.isDisabled = true
+    }
+
+  }
+
   onFileSelected(event: Event): void {
+    console.log(this.form.value.chunckSize);
+
     const input = event.target as HTMLInputElement;
 
     if (input.files && input.files.length > 0) {
-      const reader = new FileReader();
-      this.file = input.files[0];
-      this.realTotal = this.file.size;
-      const chunkSize = 1 * 1024; // 1 KB
-      const utf8Encode = new TextEncoder();
-      let contentBuffer = ''; // Acumulador para os dados
-      const files: any = []; // Para armazenar os pedaços processados
 
-      // Função para criar e adicionar um novo chunk de arquivo
-      const addFileChunk = (content: string): void => {
-        const chunk: any = new Blob([content], { type: 'text/plain' });
-        chunk.link = URL.createObjectURL(chunk);
-        chunk.name = this.file?.name;
-        files.push(chunk);
-        this.total += chunk.size;
-      };
+      if(!this.form.value.neverSplitLine) {
+        this.file = input.files[0];
+        const chunkSize = this.chunkSize;
+        const totalChunks = Math.ceil(this.file.size / chunkSize);
 
-      // Evento de carregamento do arquivo
-      reader.onload = (evt: ProgressEvent<FileReader>) => {
-        const fileContent = (evt.target?.result as string).split('\n');
-        fileContent.forEach((line, index) => {
-          const isLastLine = index === fileContent.length - 1;
+        for (let i = 0; i < totalChunks; i++) {
+          const start = i * chunkSize;
+          const end = Math.min(start + chunkSize, this.file.size);
+          const chunk = this.file.slice(start, end);
 
-          // Adiciona a linha ao buffer, verificando o tamanho acumulado
-          if (
-            utf8Encode.encode(contentBuffer + line + '\n').byteLength <=
-            chunkSize
-          ) {
-            contentBuffer += line + '\n';
-          } else {
-            // Armazena o chunk atual e inicia um novo buffer
-            addFileChunk(contentBuffer);
-            contentBuffer = line + '\n';
-          }
+          const file: any = new File([chunk], 'Parte ' + i + ': ' + this.file.name, {
+            type: "text/plain",
+          });
+          file.link = URL.createObjectURL(chunk);
+          file.name = file.name;
+          this.files.push(chunk);
+          this.total += file.size;
+        }
 
-          // Se for a última linha, armazena o buffer restante
-          if (isLastLine) {
-            addFileChunk(contentBuffer);
-          }
-        });
+      } else {
+        const reader = new FileReader();
+        this.file = input.files[0];
+        this.realTotal = this.file.size;
+        const chunkSize = this.chunkSize //* 1024;
+        const utf8Encode = new TextEncoder();
+        let contentBuffer = ''; // Acumulador para os dados
+        const files: any = []; // Para armazenar os pedaços processados
 
-        // Atualiza a lista de arquivos processados
-        this.files = files;
-      };
+        // Função para criar e adicionar um novo chunk de arquivo
+        const addFileChunk = (content: string): void => {
+          const chunk: any = new Blob([content], { type: 'text/plain' });
+          chunk.link = URL.createObjectURL(chunk);
+          chunk.name = this.file?.name;
+          files.push(chunk);
+          this.total += chunk.size;
+        };
 
-      // Lê o arquivo como texto UTF-8
-      reader.readAsText(this.file, 'UTF-8');
-    }
+        // Evento de carregamento do arquivo
+        reader.onload = (evt: ProgressEvent<FileReader>) => {
+          const fileContent = (evt.target?.result as string).split('\n');
+          fileContent.forEach((line, index) => {
+            const isLastLine = index === fileContent.length - 1;
+
+            // Adiciona a linha ao buffer, verificando o tamanho acumulado
+            if (
+              utf8Encode.encode(contentBuffer + line + '\n').byteLength <=
+              chunkSize
+            ) {
+              contentBuffer += line + '\n';
+            } else {
+              // Armazena o chunk atual e inicia um novo buffer
+              addFileChunk(contentBuffer);
+              contentBuffer = line + '\n';
+            }
+
+            // Se for a última linha, armazena o buffer restante
+            if (isLastLine) {
+              addFileChunk(contentBuffer);
+            }
+          });
+
+          // Atualiza a lista de arquivos processados
+          this.files = files;
+        };
+
+        // Lê o arquivo como texto UTF-8
+        reader.readAsText(this.file, 'UTF-8');
+      }
+      }
+
+
   }
 
   private isLastIteration(i: number, contentFile: any): boolean {
