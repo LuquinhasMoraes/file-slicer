@@ -1,0 +1,31 @@
+<div class="pagination-container">
+  <div class="pagination-controls">
+    <button class="pagination-btn" (click)="goToFirstPage()" [disabled]="currentPage === 1">
+      <i class="fas fa-angle-double-left"></i>
+    </button>
+    <button class="pagination-btn" (click)="goToPreviousPage()" [disabled]="currentPage === 1">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <span class="page-info">
+      Página {{currentPage}} de {{totalPages}}
+    </span>
+
+    <button class="pagination-btn" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+    <button class="pagination-btn" (click)="goToLastPage()" [disabled]="currentPage === totalPages">
+      <i class="fas fa-angle-double-right"></i>
+    </button>
+  </div>
+
+  <div class="page-size">
+    <label for="pageSize">Itens por página:</label>
+    <select id="pageSize" [value]="pageSize" (change)="onPageSizeChange($event)">
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="15">15</option>
+      <option value="20">20</option>
+    </select>
+  </div>
+</div>

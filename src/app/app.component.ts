@@ -25,6 +25,25 @@ export class AppComponent {
   errorMessage: string = '';
   errorDetail: string = '';
 
+  totalItems: number = 100;
+  pageSize: number = 10;
+  currentPage: number = 1;
+  totalPages: number = 0;
+  items: string[] = this.files;
+  displayedItems: any[] = [];
+
+  onPageChanged(event: { page: number, pageSize: number }) {
+    this.currentPage = event.page;
+    this.pageSize = event.pageSize;
+    this.updateDisplayedItems();
+  }
+
+  updateDisplayedItems() {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    this.displayedItems = this.files.slice(startIndex, startIndex + this.pageSize);
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+  }
+
   showError(message: string, detail: string): void {
     this.errorMessage = message;
     this.errorDetail = detail;

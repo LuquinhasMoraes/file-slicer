@@ -17,6 +17,8 @@
 </div>
 
 
+
+
 <div *ngIf="showModal" class="error-modal-overlay">
   <div class="error-modal-container">
     <div class="error-modal-header">
@@ -40,7 +42,7 @@
 
 <div class="container files" *ngIf="files.length > 0">
   <h2>Arquivos ({{files.length}})</h2>
-  <div class="file-item" *ngFor="let file of files">
+  <div class="file-item" *ngFor="let file of displayedItems">
     <div>
       <p><strong>Name:</strong> {{ file.name }}</p>
       <p><strong>Size:</strong> {{ file.size }} bytes</p>
@@ -48,6 +50,11 @@
     <a [href]="file.link" target="_blank">Visualizar</a>
   </div>
 
+  <app-pagination
+    [totalItems]="totalItems"
+    [pageSize]="pageSize"
+    (pageChanged)="onPageChanged($event)">
+  </app-pagination>
 </div>
 
 <div class="container totals">
