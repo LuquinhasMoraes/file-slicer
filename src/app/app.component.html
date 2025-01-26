@@ -39,7 +39,7 @@
 
 
 <div class="container files" *ngIf="files.length > 0">
-  <h2>Arquivos (files.length)</h2>
+  <h2>Arquivos ({{files.length}})</h2>
   <div class="file-item" *ngFor="let file of files">
     <div>
       <p><strong>Name:</strong> {{ file.name }}</p>
