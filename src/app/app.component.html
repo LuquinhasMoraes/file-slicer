@@ -10,7 +10,7 @@
     <input type="checkbox" formControlName="neverSplitLine" name="neverSplitLine" checked id="">
   </form>
   <button [disabled]="!canSplit()" (click)="splitFile()">Cortar</button>
-  <button [disabled]="true" (click)="uploadFile()">Upload</button>
+  <button [disabled]="true" (click)="uploadFile()">Download</button>
   <div class="progress" *ngIf="progress">Uploading: {{ progress }}%</div>
 
 
