@@ -127,7 +127,7 @@ export class AppComponent {
       let contentBuffer = ''; // Acumulador para os dados
       const files: any = []; // Para armazenar os pedaços processados
 
-      // Função para criar e adicionar um novo chunk de arquivo
+      // Adiciona um novo chunk e atualiza tamanho total da somas dos arquivos
       const addFileChunk = (content: string, index: number): void => {
         const chunk: any = new Blob([content], { type: 'text/plain' });
         chunk.link = URL.createObjectURL(chunk);
@@ -136,21 +136,36 @@ export class AppComponent {
         this.total += chunk.size;
       };
 
-      // Evento de carregamento do arquivo
+      // Evento para esperar o carregamento da leitura do arquivo
       reader.onload = (evt: ProgressEvent<FileReader>) => {
         const fileContent = (evt.target?.result as string).split('\n');
         fileContent.forEach((line, index) => {
           const isLastLine = index === fileContent.length - 1;
 
+          /*
+           Importante!
+           Verifica se o tamanho em bytes da linha do arquivo é maior do que o tamanho escolhido para o chunk
+           Isto é necessário, pois se o tamanho do chunk escolhido for menor que o tamanho da linha do arquivo, a linha será quebrada e isto não deve acontecer neste tipo de processamento
+          */
           if(utf8Encode.encode(line + '\n').byteLength > chunkSize) {
             this.showError('Tamanho escolhido é muito pequeno', 'O tamanho não pode ser menor que o tamanho em bytes de cada linha')
             return;
-          } else if (
+          }
+          /**
+           * Verifica se o tamanho do conteúdo do chunk atual que está sendo montando + o tamanho do conteúdo da próx linha que vai ser iterada é menor ou igual o valor do escolhido para o chunk
+           * Isto é importante pois só podemos continuar iterando e incrementando o conteúdo com a próxima linha, se tivermos certeza que não passará do limite escolhido pelo usuário
+           */
+          else if (
             utf8Encode.encode(contentBuffer + line + '\n').byteLength <=
             chunkSize
           ) {
             contentBuffer += line + '\n';
-          } else {
+          }
+          /**
+           * Caso contrário
+           * Precisamos criar um novo file chunk para armazenar o conteúdo do arquivo, e recomeçamos a armazenar as próximas linhas do contentBuffer
+           */
+          else {
             // Armazena o chunk atual e inicia um novo buffer
             addFileChunk(contentBuffer, index);
             contentBuffer = line + '\n';
@@ -162,11 +177,9 @@ export class AppComponent {
           }
         });
 
-        // Atualiza a lista de arquivos processados
         this.files = files;
       };
 
-      // Lê o arquivo como texto UTF-8
       reader.readAsText(this.file, 'UTF-8');
     }
   }
