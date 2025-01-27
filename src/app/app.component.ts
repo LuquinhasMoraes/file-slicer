@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-
+import * as JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -34,8 +35,10 @@ export class AppComponent {
 
   onPageChanged(event: { page: number, pageSize: number }) {
     this.currentPage = event.page;
-    this.pageSize = event.pageSize;
+    this.pageSize = Number(event.pageSize);
     this.updateDisplayedItems();
+
+
   }
 
   updateDisplayedItems() {
@@ -61,6 +64,18 @@ export class AppComponent {
   }
 
   constructor(private formBuilder: FormBuilder) {}
+
+  async downloadAsZip() {
+    let zip: JSZip = new JSZip();
+
+    this.files.forEach((file: any) => {
+      zip.file(file.name, file.arrayBuffer());
+    })
+
+    zip.generateAsync({ type: 'blob' }).then((content: any) => {
+      saveAs(content, 'sliced_files.zip');
+    });
+  }
 
   setChunkSize(input: any) {
     this.chunkSize = Number(input.value);
@@ -132,7 +147,6 @@ export class AppComponent {
       const addFileChunk = (content: string, index: number): void => {
         const chunk: any = new Blob([content], { type: 'text/plain' });
         chunk.link = URL.createObjectURL(chunk);
-        console.log('creating name: ', count);
 
         chunk.name = count++ + '_' + this.file?.name;
         files.push(chunk);
@@ -143,7 +157,6 @@ export class AppComponent {
       reader.onload = (evt: ProgressEvent<FileReader>) => {
         const fileContent = (evt.target?.result as string).split('\n');
         fileContent.forEach((line, index) => {
-          console.log(index);
 
           const isLastLine = index === fileContent.length - 1;
 

@@ -14,21 +14,19 @@ export class PaginationComponent implements OnInit {
   totalPages: number = 0;
 
   ngOnInit(): void {
-    // Calculando o total de páginas quando o componente for inicializado
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);
     if (this.totalPages === 0) {
-      this.totalPages = 1;  // Garantir que haja pelo menos uma página
+      this.totalPages = 1;
     }
-    // Adiando a chamada do método de atualização da página
     setTimeout(() => this.updatePage(), 0);
   }
 
   ngOnChanges(): void {
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+
     if (this.currentPage > this.totalPages) {
       this.currentPage = this.totalPages;
     }
-    // Adiando a atualização da página
     setTimeout(() => this.updatePage(), 0);
   }
 
@@ -41,7 +39,6 @@ export class PaginationComponent implements OnInit {
 
   onPageSizeChange(event: any) {
     this.pageSize = event.target.value;
-    this.currentPage = 1; // Redefine a página para 1 ao mudar a quantidade de itens por página
     this.ngOnChanges();
   }
 
