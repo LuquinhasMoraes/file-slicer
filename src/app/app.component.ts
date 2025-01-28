@@ -8,7 +8,7 @@ import { saveAs } from 'file-saver';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
-  file: File = new File([], "");
+  file: File = new File([], '');
   progress: number | null = null;
   files: any[] = [];
   total: number = 0;
@@ -17,6 +17,7 @@ export class AppComponent {
   form = this.formBuilder.group({
     chunckSize: ['', Validators.required],
     neverSplitLine: [true],
+    unit: ['bytes'],
   });
 
   chunkSize = 0;
@@ -32,18 +33,20 @@ export class AppComponent {
   totalPages: number = 0;
   items: string[] = this.files;
   displayedItems: any[] = [];
+  isLoading: boolean = false;
 
-  onPageChanged(event: { page: number, pageSize: number }) {
+  onPageChanged(event: { page: number; pageSize: number }) {
     this.currentPage = event.page;
     this.pageSize = Number(event.pageSize);
     this.updateDisplayedItems();
-
-
   }
 
   updateDisplayedItems() {
     const startIndex = (this.currentPage - 1) * this.pageSize;
-    this.displayedItems = this.files.slice(startIndex, startIndex + this.pageSize);
+    this.displayedItems = this.files.slice(
+      startIndex,
+      startIndex + this.pageSize
+    );
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);
   }
 
@@ -70,12 +73,14 @@ export class AppComponent {
 
     this.files.forEach((file: any) => {
       zip.file(file.name, file.arrayBuffer());
-    })
+    });
 
     zip.generateAsync({ type: 'blob' }).then((content: any) => {
       saveAs(content, 'sliced_files.zip');
     });
   }
+
+
 
   setChunkSize(input: any) {
     this.chunkSize = Number(input.value);
@@ -87,31 +92,60 @@ export class AppComponent {
   }
 
   canSplit(): boolean {
-    return !!this.file && this.file.size > 0 && !!this.file.name && !!this.file.type && this.form.valid;
+    return (
+      !!this.file &&
+      this.file.size > 0 &&
+      !!this.file.name &&
+      !!this.file.type &&
+      this.form.valid
+    );
   }
 
   validate() {
-    if(this.chunkSize > this.file.size) {
-      this.showError('Tamanho escolhido é muito grande', 'O tamanho da fatia não pode ser maior que o tamanho do arquivo')
+    if (this.chunkSize > this.file.size) {
+      this.showError(
+        'Tamanho escolhido é muito grande',
+        'O tamanho da fatia não pode ser maior que o tamanho do arquivo'
+      );
       return false;
-    } else if(this.chunkSize === 0) {
-      this.showError('Tamanho escolhido é muito pequeno', 'O tamanho da fatia não pode ser zero')
+    } else if (this.chunkSize === 0) {
+      this.showError(
+        'Tamanho escolhido é muito pequeno',
+        'O tamanho da fatia não pode ser zero'
+      );
       return false;
     }
 
     return true;
-
   }
 
-  splitFile() {
+  getUnit() {
+    if(this.form.value.unit === 'bytes') {
+      return {
+        value: 1,
+        code: 'bytes'
+      };
+    } else if(this.form.value.unit === 'KB') {
+      return {
+        value: 1024,
+        code: 'KB'
+      };
+    } else {
+      return {
+        value: 1024 * 1024,
+        code: 'MB'
+      };
+    }
+  }
 
-    if(!this.validate()) {
+  async splitFile() {
+    if (!this.validate()) {
       return;
     }
 
     if (!this.form.value.neverSplitLine) {
       this.resetValues();
-      const chunkSize = this.chunkSize;
+      const chunkSize = this.chunkSize * this.getUnit().value;
       const totalChunks = Math.ceil(this.file.size / chunkSize);
 
       for (let i = 0; i < totalChunks; i++) {
@@ -119,87 +153,82 @@ export class AppComponent {
         const end = Math.min(start + chunkSize, this.file.size);
         const chunk = this.file.slice(start, end);
 
-        const file: any = new File(
-          [chunk],
-          i + '_' + this.file.name,
-          {
-            type: 'text/plain',
-          }
-        );
+        const file: any = new File([chunk], i + '_' + this.file.name, {
+          type: 'text/plain',
+        });
 
         console.log(file);
 
         file.link = URL.createObjectURL(file);
+        file.unit = this.getUnit().code;
         this.files.push(file);
         this.total += file.size;
       }
     } else {
       this.resetValues();
-      const reader = new FileReader();
-
-      const chunkSize = this.chunkSize; //* 1024;
-      const utf8Encode = new TextEncoder();
-      let contentBuffer = ''; // Acumulador para os dados
-      const files: any = []; // Para armazenar os pedaços processados
-
-      let count = 0;
-      // Adiciona um novo chunk e atualiza tamanho total da somas dos arquivos
-      const addFileChunk = (content: string, index: number): void => {
-        const chunk: any = new Blob([content], { type: 'text/plain' });
-        chunk.link = URL.createObjectURL(chunk);
-
-        chunk.name = count++ + '_' + this.file?.name;
-        files.push(chunk);
-        this.total += chunk.size;
-      };
-
-      // Evento para esperar o carregamento da leitura do arquivo
-      reader.onload = (evt: ProgressEvent<FileReader>) => {
-        const fileContent = (evt.target?.result as string).split('\n');
-        fileContent.forEach((line, index) => {
-
-          const isLastLine = index === fileContent.length - 1;
-
-          /*
-           Importante!
-           Verifica se o tamanho em bytes da linha do arquivo é maior do que o tamanho escolhido para o chunk
-           Isto é necessário, pois se o tamanho do chunk escolhido for menor que o tamanho da linha do arquivo, a linha será quebrada e isto não deve acontecer neste tipo de processamento
-          */
-          if(utf8Encode.encode(line + '\n').byteLength > chunkSize) {
-            this.showError('Tamanho escolhido é muito pequeno', 'O tamanho não pode ser menor que o tamanho em bytes de cada linha')
-            return;
-          }
-          /**
-           * Verifica se o tamanho do conteúdo do chunk atual que está sendo montando + o tamanho do conteúdo da próx linha que vai ser iterada é menor ou igual o valor do escolhido para o chunk
-           * Isto é importante pois só podemos continuar iterando e incrementando o conteúdo com a próxima linha, se tivermos certeza que não passará do limite escolhido pelo usuário
-           */
-          else if (
-            utf8Encode.encode(contentBuffer + line + '\n').byteLength <=
-            chunkSize
-          ) {
-            contentBuffer += line + '\n';
-          }
-          /**
-           * Caso contrário
-           * Precisamos criar um novo file chunk para armazenar o conteúdo do arquivo, e recomeçamos a armazenar as próximas linhas do contentBuffer
-           */
-          else {
-            // Armazena o chunk atual e inicia um novo buffer
-            addFileChunk(contentBuffer, index);
-            contentBuffer = line + '\n';
-          }
-
-          // Se for a última linha, armazena o buffer restante
-          if (isLastLine) {
-            addFileChunk(contentBuffer, index);
-          }
-        });
-
-        this.files = files;
-      };
-
-      reader.readAsText(this.file, 'UTF-8');
+      this.files = await this.splitFilePreservingLines(
+        this.file,
+        this.chunkSize * this.getUnit().value
+      );
     }
+  }
+
+  async splitFilePreservingLines(file: File, chunkSize: number) {
+    const utf8Decoder = new TextDecoder('utf-8');
+    const utf8Encoder = new TextEncoder();
+    const chunks: File[] = [];
+    let currentOffset = 0;
+    let currentChunk = '';
+    let totalBytes = 0;
+
+    while (currentOffset < file.size) {
+      const chunkBlob = file.slice(currentOffset, currentOffset + chunkSize);
+      const chunkArrayBuffer = await chunkBlob.arrayBuffer();
+      const chunkText = utf8Decoder.decode(chunkArrayBuffer);
+
+      // Divida o conteúdo em linhas
+      const lines = chunkText.split('\n');
+
+      for (const line of lines) {
+        const lineLength = utf8Encoder.encode(line + '\n').length;
+
+        // Verifica se adicionar a linha ultrapassaria o chunkSize
+        if (totalBytes + lineLength > chunkSize) {
+          // Se o tamanho do chunk exceder o limite, cria o chunk e reinicia
+          if (currentChunk) {
+            const chunkFile: any = new File([currentChunk], `${chunks.length}_${file.name}`, {
+              type: 'text/plain',
+            });
+            chunkFile.unit = this.getUnit().code;
+            chunkFile.link = URL.createObjectURL(chunkFile);
+            chunks.push(chunkFile);
+          }
+
+          // Reseta os valores
+           currentChunk = '';
+           totalBytes = 0;
+           currentOffset -= lineLength;
+        } else {
+          // Adiciona a linha ao chunk atual
+          currentChunk += line;
+          totalBytes += lineLength;
+        }
+      }
+      currentOffset += chunkText.length;
+
+    }
+
+    // Se sobrar algum conteúdo no último chunk, cria o arquivo final
+    if (currentChunk) {
+      const chunkFile: any = new File([currentChunk], `${chunks.length}_${file.name}`, {
+        type: 'text/plain',
+      });
+      chunkFile.unit = this.getUnit().code;
+      chunkFile.link = URL.createObjectURL(chunkFile);
+      chunks.push(chunkFile);
+    }
+
+    return chunks;
   }
 
   onFileSelected(event: Event): void {
@@ -213,9 +242,6 @@ export class AppComponent {
     }
   }
 
-  private isLastIteration(i: number, contentFile: any): boolean {
-    return i === contentFile.length - 1;
-  }
 
   async uploadFile(): Promise<void> {
     if (!this.file) return;

@@ -1,15 +1,28 @@
 <div class="container">
   <h1>File Slicer</h1>
   <input type="file" (change)="onFileSelected($event)" accept=".txt" />
-  <p *ngIf="realTotal > 0"><strong>Tamanho total do arquivo:</strong> {{ realTotal }} bytes</p>
+  <div *ngIf="realTotal > 0">
+    <p><strong>Tamanho total do arquivo:</strong></p>
+    <p>{{ realTotal }} bytes</p>
+    <p>{{ realTotal / 1024}} KB</p>
+    <p>{{ realTotal / (1024 * 1024)}} MB</p>
+
+  </div>
   <form [formGroup]="form">
-    <label for="chunckSize">Tamanho (bytes)</label>
-    <input class="input-text" placeholder="50 bytes" #chunkSize (input)="setChunkSize(chunkSize)" type="number" formControlName="chunckSize" name="chunckSize">
+    <label for="chunckSize">Unit</label>
+    <select class="input-text" style="height: 35px;" formControlName="unit" name="unit">
+      <option value="bytes">Bytes</option>
+      <option value="KB">KB</option>
+      <option value="MB">MB</option>
+    </select>
+    <label for="chunckSize">Size</label>
+    <input class="input-text" placeholder="50 bytes" #chunkSize (input)="setChunkSize(chunkSize)" type="number"
+      formControlName="chunckSize" name="chunckSize">
     <br>
-    <label for="chunckSize">Nunca dividir a linha</label>
+    <label for="chunckSize">Split line</label>
     <input type="checkbox" formControlName="neverSplitLine" name="neverSplitLine" checked id="">
   </form>
-  <button [disabled]="!canSplit()" (click)="splitFile()">Cortar</button>
+  <button [disabled]="!canSplit()" (click)="splitFile()">{{isLoading ? 'Fatiando...' : 'Cortar'}}</button>
   <button [disabled]="!(files.length > 0)" (click)="downloadAsZip()">Download</button>
   <div class="progress" *ngIf="progress">Uploading: {{ progress }}%</div>
 </div>
@@ -23,7 +36,9 @@
       <h3>Atenção</h3>
       <button (click)="closeModal()" class="close-button">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          <path fill-rule="evenodd"
+            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+            clip-rule="evenodd" />
         </svg>
       </button>
     </div>
@@ -43,20 +58,16 @@
   <div class="file-item" *ngFor="let file of displayedItems">
     <div>
       <p><strong>Name:</strong> {{ file.name }}</p>
-      <p><strong>Size:</strong> {{ file.size }} bytes</p>
+      <p><strong>Size:</strong> {{ file.size / getUnit().value }} {{file.unit }}</p>
     </div>
     <a [href]="file.link" target="_blank">Visualizar</a>
   </div>
 
-  <app-pagination
-    [totalItems]="files.length"
-    [pageSize]="pageSize"
-    (pageChanged)="onPageChanged($event)">
+  <app-pagination [totalItems]="files.length" [pageSize]="pageSize" (pageChanged)="onPageChanged($event)">
   </app-pagination>
 </div>
 
 <div class="container totals">
   <!-- <p><strong>Total Size:</strong> {{ total }} KB</p> -->
-  <p>Feito por Lucas</p>
+  <p>by: Lucas</p>
 </div>
-
