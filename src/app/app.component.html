@@ -4,8 +4,8 @@
   <div *ngIf="realTotal > 0">
     <p><strong>Tamanho total do arquivo:</strong></p>
     <p>{{ realTotal }} bytes</p>
-    <p>{{ realTotal / 1024}} KB</p>
-    <p>{{ realTotal / (1024 * 1024)}} MB</p>
+    <p>{{ math.round(realTotal / 1024)}} KB</p>
+    <p>{{ math.round(realTotal / (1024 * 1024))}} MB</p>
 
   </div>
   <form [formGroup]="form">
@@ -16,7 +16,7 @@
       <option value="MB">MB</option>
     </select>
     <label for="chunckSize">Size</label>
-    <input class="input-text" placeholder="50 bytes" #chunkSize (input)="setChunkSize(chunkSize)" type="number"
+    <input class="input-text" placeholder="50 {{getUnit().code}}" #chunkSize (input)="setChunkSize(chunkSize)" type="number"
       formControlName="chunckSize" name="chunckSize">
     <br>
     <label for="chunckSize">Split line</label>
@@ -58,7 +58,7 @@
   <div class="file-item" *ngFor="let file of displayedItems">
     <div>
       <p><strong>Name:</strong> {{ file.name }}</p>
-      <p><strong>Size:</strong> {{ file.size / getUnit().value }} {{file.unit }}</p>
+      <p><strong>Size:</strong> {{ math.round(file.size / getUnit().value) }} {{file.unit }}</p>
     </div>
     <a [href]="file.link" target="_blank">Visualizar</a>
   </div>

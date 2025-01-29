@@ -34,6 +34,7 @@ export class AppComponent {
   items: string[] = this.files;
   displayedItems: any[] = [];
   isLoading: boolean = false;
+  math = Math;
 
   onPageChanged(event: { page: number; pageSize: number }) {
     this.currentPage = event.page;
@@ -48,6 +49,8 @@ export class AppComponent {
       startIndex + this.pageSize
     );
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+    console.log(this.displayedItems);
+
   }
 
   showError(message: string, detail: string): void {
@@ -161,15 +164,21 @@ export class AppComponent {
 
         file.link = URL.createObjectURL(file);
         file.unit = this.getUnit().code;
-        this.files.push(file);
+
+        const files = [file];
+
+        this.files = [...this.files, ...files];
+        this.updateDisplayedItems();
         this.total += file.size;
       }
     } else {
       this.resetValues();
+      this.isLoading = true;
       this.files = await this.splitFilePreservingLines(
         this.file,
         this.chunkSize * this.getUnit().value
       );
+      this.isLoading = false;
     }
   }
 
@@ -189,6 +198,16 @@ export class AppComponent {
       // Divida o conteúdo em linhas
       const lines = chunkText.split('\n');
 
+      const firstLineLength = utf8Encoder.encode(lines[0] + '\n').length;
+
+      if(firstLineLength > chunkSize) {
+        this.showError(
+          'Size is too small',
+          'The size chunk must be greater than file first line size'
+        );
+        return [];
+      }
+
       for (const line of lines) {
         const lineLength = utf8Encoder.encode(line + '\n').length;
 
@@ -202,6 +221,14 @@ export class AppComponent {
             chunkFile.unit = this.getUnit().code;
             chunkFile.link = URL.createObjectURL(chunkFile);
             chunks.push(chunkFile);
+          } else if (lines.length === 1) {
+            const chunkFile: any = new File([line], `${chunks.length}_${file.name}`, {
+              type: 'text/plain',
+            });
+            chunkFile.unit = this.getUnit().code;
+            chunkFile.link = URL.createObjectURL(chunkFile);
+            chunks.push(chunkFile);
+            currentOffset += file.size + 1;
           }
 
           // Reseta os valores
