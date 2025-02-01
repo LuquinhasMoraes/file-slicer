@@ -52,8 +52,6 @@ export class AppComponent {
       startIndex + this.pageSize
     );
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-    console.log(this.displayedItems);
-
   }
 
   showError(message: string, detail: string): void {
