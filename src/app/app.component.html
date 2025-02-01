@@ -22,7 +22,7 @@
     <label for="chunckSize">Split line</label>
     <input type="checkbox" formControlName="neverSplitLine" name="neverSplitLine" checked id="">
   </form>
-  <button [disabled]="!canSplit()" (click)="splitFile()">{{isLoading ? 'Fatiando...' : 'Cortar'}}</button>
+  <button [disabled]="!canSplit()" (click)="splitFile()">{{isLoading ? 'Spliting...' : 'Split'}}</button>
   <button [disabled]="!(files.length > 0)" (click)="downloadAsZip()">Download</button>
   <div class="progress" *ngIf="progress">Uploading: {{ progress }}%</div>
 </div>
@@ -47,20 +47,20 @@
       <p class="error-detail">{{ errorDetail }}</p>
     </div>
     <div class="error-modal-footer">
-      <button (click)="closeModal()" class="close-modal-button">Fechar</button>
+      <button (click)="closeModal()" class="close-modal-button">Close</button>
     </div>
   </div>
 </div>
 
 
 <div class="container files" *ngIf="files.length > 0">
-  <h2>Arquivos ({{files.length}})</h2>
+  <h2>Files ({{files.length}})</h2>
   <div class="file-item" *ngFor="let file of displayedItems">
     <div>
       <p><strong>Name:</strong> {{ file.name }}</p>
       <p><strong>Size:</strong> {{ math.round(file.size / getUnit().value) }} {{file.unit }}</p>
     </div>
-    <a [href]="file.link" target="_blank">Visualizar</a>
+    <a [href]="file.link" target="_blank">View file</a>
   </div>
 
   <app-pagination [totalItems]="files.length" [pageSize]="pageSize" (pageChanged)="onPageChanged($event)">
@@ -69,5 +69,8 @@
 
 <div class="container totals">
   <!-- <p><strong>Total Size:</strong> {{ total }} KB</p> -->
-  <p>by: Lucas</p>
+  <p>
+    You can contribute code to this project at: <br>
+    <a target="_blank" href="https://github.com/LuquinhasMoraes/file-slicer" className="">File Slicer</a>
+  </p>
 </div>
