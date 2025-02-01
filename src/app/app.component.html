@@ -16,11 +16,11 @@
       <option value="MB">MB</option>
     </select>
     <label for="chunckSize">Size</label>
-    <input class="input-text" placeholder="50 {{getUnit().code}}" #chunkSize (input)="setChunkSize(chunkSize)" type="number"
+    <input class="input-text" placeholder="50 {{getUnit(form.value.unit).code}}" #chunkSize (input)="setChunkSize(chunkSize)" type="number"
       formControlName="chunckSize" name="chunckSize">
     <br>
-    <label for="chunckSize">Split line</label>
-    <input type="checkbox" formControlName="neverSplitLine" name="neverSplitLine" checked id="">
+    <label for="chunckSize">No line break</label>
+    <input type="checkbox" formControlName="canSplitLine" name="canSplitLine" checked id="">
   </form>
   <button [disabled]="!canSplit()" (click)="splitFile()">{{isLoading ? 'Spliting...' : 'Split'}}</button>
   <button [disabled]="!(files.length > 0)" (click)="downloadAsZip()">Download</button>
@@ -33,7 +33,7 @@
 <div *ngIf="showModal" class="error-modal-overlay">
   <div class="error-modal-container">
     <div class="error-modal-header">
-      <h3>Atenção</h3>
+      <h3>Warning</h3>
       <button (click)="closeModal()" class="close-button">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd"
@@ -58,7 +58,7 @@
   <div class="file-item" *ngFor="let file of displayedItems">
     <div>
       <p><strong>Name:</strong> {{ file.name }}</p>
-      <p><strong>Size:</strong> {{ math.round(file.size / getUnit().value) }} {{file.unit }}</p>
+      <p><strong>Size:</strong> {{ math.round(file.size / getUnit(form.value.unit).value) }} {{file.unit }}</p>
     </div>
     <a [href]="file.link" target="_blank">View file</a>
   </div>

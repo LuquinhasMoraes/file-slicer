@@ -60,7 +60,7 @@ button {
   transition: background-color 0.3s;
 }
 button:disabled {
-  background-color: #ccc;
+  background-color: #0057b355;
   cursor: not-allowed;
 }
 button:hover:not(:disabled) {
