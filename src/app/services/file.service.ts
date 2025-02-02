@@ -63,10 +63,8 @@ export class FileService {
 
     let files: any = [];
     if (!canSplitLine) {
-      // chunk = 10 bytes
-      // file size = 1000
-      const chunkSizeByUnit = chunkSize * 1 //this.getUnit(unit).value;
-      const totalChunks = Math.ceil(file.size / chunkSizeByUnit); // 1000 / 10 = 100
+      const chunkSizeByUnit = chunkSize * this.getUnit(unit).value;
+      const totalChunks = Math.ceil(file.size / chunkSizeByUnit);
 
       for (let i = 0; i < totalChunks; i++) {
         const start = i * chunkSizeByUnit;
@@ -98,9 +96,8 @@ export class FileService {
     chunkSize = chunkSize * this.getUnit(unit).value;
     const utf8Decoder = new TextDecoder('utf-8');
     const utf8Encoder = new TextEncoder();
-    const chunks: File[] = [];
     const un = this.getUnit(unit).code;
-
+    const chunks: File[] = [];
     let currentOffset = 0;
     let currentChunk = '';
     let totalBytes = 0;
