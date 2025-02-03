@@ -64,7 +64,7 @@ p {
   color: var(--text-color);
 }
 .files {
-  margin-top: 20px;
+  margin-top: 30px !important;
   border: 0px solid #ddd;
   border-radius: 5px;
   /* background-color: #fdfdfd; */
@@ -243,12 +243,6 @@ a:hover {
 .dark-mode-toggle svg {
   width: 22px;
   height: 22px;
-}
-
-
-
-section {
-
 }
 
 h1 p {
