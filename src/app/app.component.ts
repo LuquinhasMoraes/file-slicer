@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import * as JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -9,7 +9,7 @@ import { ModalService } from './services/modal.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit  {
   file: File = new File([], '');
   progress: number | null = null;
   files: any[] = [];
@@ -38,6 +38,7 @@ export class AppComponent {
   isLoading: boolean = false;
   math = Math;
   getUnit: any;
+  isDarkMode = false;
 
   onPageChanged(event: { page: number; pageSize: number }) {
     this.currentPage = event.page;
@@ -72,13 +73,40 @@ export class AppComponent {
   constructor(
     private formBuilder: FormBuilder,
     private fileService: FileService,
-    public modalService: ModalService
+    public modalService: ModalService,
+    private renderer: Renderer2
   ) {
     this.getUnit = this.fileService.getUnit;
 
     this.fileService.errorsObservable.subscribe((response: ErrorMessage) => {
       this.showError(response.titleMessage, response.detailError);
     })
+  }
+
+  ngOnInit() {
+    const darkModeSetting = localStorage.getItem('darkMode');
+    this.isDarkMode = darkModeSetting === 'enabled';
+    const container = document.querySelector('.container');
+    const section = document.querySelector('section');
+    if (this.isDarkMode) {
+      this.renderer.addClass(container, 'dark-mode');
+      this.renderer.addClass(section, 'dark-mode');
+    }
+  }
+
+  toggleDarkMode() {
+    this.isDarkMode = !this.isDarkMode;
+    const container = document.querySelector('.container');
+    const section = document.querySelector('section');
+    if (this.isDarkMode) {
+      this.renderer.addClass(container, 'dark-mode');
+      this.renderer.addClass(section, 'dark-mode');
+      localStorage.setItem('darkMode', 'enabled');
+    } else {
+      this.renderer.removeClass(container, 'dark-mode');
+      this.renderer.removeClass(section, 'dark-mode');
+      localStorage.setItem('darkMode', 'disabled');
+    }
   }
 
   async downloadAsZip() {

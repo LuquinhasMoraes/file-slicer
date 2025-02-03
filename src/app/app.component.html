@@ -1,76 +1,90 @@
-<div class="container">
-  <h1>File Slicer</h1>
-  <input type="file" (change)="onFileSelected($event)" accept=".txt" />
-  <div *ngIf="realTotal > 0">
-    <p><strong>Total file size:</strong></p>
-    <p>{{ realTotal }} bytes</p>
-    <p>{{ math.round(realTotal / 1024)}} KB</p>
-    <p>{{ math.round(realTotal / (1024 * 1024))}} MB</p>
-
-  </div>
-  <form [formGroup]="form">
-    <label for="chunckSize">Unit</label>
-    <select class="input-text" style="height: 35px;" formControlName="unit" name="unit">
-      <option value="bytes">Bytes</option>
-      <option value="KB">KB</option>
-      <option value="MB">MB</option>
-    </select>
-    <label for="chunckSize">Size</label>
-    <input class="input-text" placeholder="50 {{getUnit(form.value.unit).code}}" #chunkSize (input)="setChunkSize(chunkSize)" type="number"
-      formControlName="chunckSize" name="chunckSize">
-    <br>
-    <label for="chunckSize">No line break</label>
-    <input type="checkbox" formControlName="canSplitLine" name="canSplitLine" checked id="">
-  </form>
-  <button [disabled]="!canSplit()" (click)="splitFile()">{{isLoading ? 'Spliting...' : 'Split'}}</button>
-  <button [disabled]="!(files.length > 0)" (click)="downloadAsZip()">Download</button>
-  <div class="progress" *ngIf="progress">Uploading: {{ progress }}%</div>
-</div>
-
-
-
-
-<div *ngIf="showModal" class="error-modal-overlay">
-  <div class="error-modal-container">
-    <div class="error-modal-header">
-      <h3>Warning</h3>
-      <button (click)="closeModal()" class="close-button">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd"
-            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-            clip-rule="evenodd" />
-        </svg>
+<section>
+  <div class="container">
+    <div class="header">
+      <h1>File Slicer</h1>
+      <button class="dark-mode-toggle" (click)="toggleDarkMode()">
+        <span *ngIf="!isDarkMode">
+          ☀️
+        </span>
+        <span *ngIf="isDarkMode">
+          🌙
+        </span>
       </button>
     </div>
-    <div class="error-modal-body">
-      <p class="error-message">{{ errorMessage }}</p>
-      <p class="error-detail">{{ errorDetail }}</p>
+
+    <input type="file" (change)="onFileSelected($event)" accept=".txt" />
+    <div *ngIf="realTotal > 0">
+      <p><strong>Total file size:</strong></p>
+      <p>{{ realTotal }} bytes</p>
+      <p>{{ math.round(realTotal / 1024)}} KB</p>
+      <p>{{ math.round(realTotal / (1024 * 1024))}} MB</p>
+
     </div>
-    <div class="error-modal-footer">
-      <button (click)="closeModal()" class="close-modal-button">Close</button>
+    <form [formGroup]="form">
+      <label for="chunckSize">Unit</label>
+      <select class="input-text" style="height: 35px;" formControlName="unit" name="unit">
+        <option value="bytes">Bytes</option>
+        <option value="KB">KB</option>
+        <option value="MB">MB</option>
+      </select>
+      <label for="chunckSize">Size</label>
+      <input class="input-text" placeholder="50 {{getUnit(form.value.unit).code}}" #chunkSize
+        (input)="setChunkSize(chunkSize)" type="number" formControlName="chunckSize" name="chunckSize">
+      <br>
+      <label for="chunckSize">No line break</label>
+      <input type="checkbox" formControlName="canSplitLine" name="canSplitLine" checked id="">
+    </form>
+    <button [disabled]="!canSplit()" (click)="splitFile()">{{isLoading ? 'Spliting...' : 'Split'}}</button>
+    <button [disabled]="!(files.length > 0)" (click)="downloadAsZip()">Download</button>
+    <div class="progress" *ngIf="progress">Uploading: {{ progress }}%</div>
+  </div>
+
+
+
+
+  <div *ngIf="showModal" class="error-modal-overlay">
+    <div class="error-modal-container">
+      <div class="error-modal-header">
+        <h3>Warning</h3>
+        <button (click)="closeModal()" class="close-button">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <div class="error-modal-body">
+        <p class="error-message">{{ errorMessage }}</p>
+        <p class="error-detail">{{ errorDetail }}</p>
+      </div>
+      <div class="error-modal-footer">
+        <button (click)="closeModal()" class="close-modal-button">Close</button>
+      </div>
     </div>
   </div>
-</div>
 
 
-<div class="container files" *ngIf="files.length > 0">
-  <h2>Files ({{files.length}})</h2>
-  <div class="file-item" *ngFor="let file of displayedItems">
-    <div>
-      <p><strong>Name:</strong> {{ file.name }}</p>
-      <p><strong>Size:</strong> {{ math.round(file.size / getUnit(form.value.unit).value) }} {{file.unit }}</p>
+  <div class="container files" *ngIf="files.length > 0">
+    <h2>Files ({{files.length}})</h2>
+    <div class="file-item" *ngFor="let file of displayedItems">
+      <div>
+        <p><strong>Name:</strong> {{ file.name }}</p>
+        <p><strong>Size:</strong> {{ math.round(file.size / getUnit(form.value.unit).value) }} {{file.unit }}</p>
+      </div>
+      <a [href]="file.link" target="_blank">View file</a>
     </div>
-    <a [href]="file.link" target="_blank">View file</a>
+
+    <app-pagination [totalItems]="files.length" [pageSize]="pageSize" (pageChanged)="onPageChanged($event)">
+    </app-pagination>
   </div>
 
-  <app-pagination [totalItems]="files.length" [pageSize]="pageSize" (pageChanged)="onPageChanged($event)">
-  </app-pagination>
-</div>
+  <div class="container totals">
+    <!-- <p><strong>Total Size:</strong> {{ total }} KB</p> -->
+    <p>
+      You can contribute code to this project at: <br>
+      <a target="_blank" href="https://github.com/LuquinhasMoraes/file-slicer" className="">File Slicer</a>
+    </p>
+  </div>
 
-<div class="container totals">
-  <!-- <p><strong>Total Size:</strong> {{ total }} KB</p> -->
-  <p>
-    You can contribute code to this project at: <br>
-    <a target="_blank" href="https://github.com/LuquinhasMoraes/file-slicer" className="">File Slicer</a>
-  </p>
-</div>
+</section>

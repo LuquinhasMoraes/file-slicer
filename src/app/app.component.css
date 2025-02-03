@@ -5,17 +5,9 @@ body {
   padding: 0;
 }
 
-.container {
-  max-width: 600px;
-  margin: 50px auto;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
 h1 {
   text-align: center;
-  color: #333;
+  color: var(--text-color);
   margin-bottom: 20px;
 }
 input[type='file'] {
@@ -35,8 +27,9 @@ form {
 }
 
 form > label {
-  color: #5f5f5f
+  color: var(--text-color);
 }
+
 .input-text {
   width: 70px;
   height: 25px;
@@ -68,7 +61,7 @@ button:hover:not(:disabled) {
 }
 p {
   font-size: 14px;
-  color: #555;
+  color: var(--text-color);
 }
 .files {
   margin-top: 20px;
@@ -95,7 +88,7 @@ a:hover {
   color: #0056b3;
 }
 .totals {
-  margin-top: 20px;
+  margin-top: 30px !important;
   text-align: center;
   font-size: 16px;
   font-weight: bold;
@@ -218,3 +211,89 @@ a:hover {
 .close-modal-button:hover {
   background: #dc2626;
 }
+
+/* Header layout */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 15px;
+}
+
+/* Dark mode toggle */
+.dark-mode-toggle {
+  background: var(--btn-bg);
+  color: var(--text-color);
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.dark-mode-toggle:hover {
+  background: var(--btn-hover-bg);
+}
+
+.dark-mode-toggle svg {
+  width: 22px;
+  height: 22px;
+}
+
+:root {
+  --bg-color: #f9f9f9;
+  --text-color: #333;
+  --container-bg: #fff;
+  --border-color: #e0e0e0;
+  --btn-bg: #007bff;
+  --btn-hover-bg: #0056b3;
+  --input-bg: #fff;
+  --input-border: #ccc;
+}
+
+/* Dark mode */
+.dark-mode {
+  --bg-color: #121212;
+  --text-color: #f5f5f5;
+  --container-bg: #1e1e1e;
+  --border-color: #444;
+  --btn-bg: #007bff;
+  --btn-hover-bg: #3399ff;
+  --input-bg: #2a2a2a;
+  --input-border: #555;
+  /* background-color: #1e1e1e;
+  border-color: #555;
+  color: #fff; */
+}
+
+section {
+  font-family: Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  padding-top: 30px;
+  width: 100%;
+  height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+h1 p {
+  color: var(--text-color);
+}
+
+.container {
+  max-width: 600px;
+  margin: 0px auto;
+  background-color: var(--container-bg);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: background-color 0.3s;
+}
+
