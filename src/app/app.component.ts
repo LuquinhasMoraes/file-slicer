@@ -87,24 +87,22 @@ export class AppComponent implements OnInit  {
     const darkModeSetting = localStorage.getItem('darkMode');
     this.isDarkMode = darkModeSetting === 'enabled';
     const container = document.querySelector('.container');
-    const section = document.querySelector('section');
     if (this.isDarkMode) {
       this.renderer.addClass(container, 'dark-mode');
-      this.renderer.addClass(section, 'dark-mode');
+      this.renderer.addClass(document.body, 'dark-mode');
     }
   }
 
   toggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;
     const container = document.querySelectorAll('.container');
-    const section = document.querySelector('section');
     if (this.isDarkMode) {
       container.forEach(c => this.renderer.addClass(c, 'dark-mode'))
-      this.renderer.addClass(section, 'dark-mode');
+      this.renderer.addClass(document.body, 'dark-mode');
       localStorage.setItem('darkMode', 'enabled');
     } else {
       container.forEach(c => this.renderer.removeClass(c, 'dark-mode'))
-      this.renderer.removeClass(section, 'dark-mode');
+      this.renderer.removeClass(document.body, 'dark-mode');
       localStorage.setItem('darkMode', 'disabled');
     }
   }

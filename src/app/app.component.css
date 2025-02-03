@@ -245,43 +245,10 @@ a:hover {
   height: 22px;
 }
 
-:root {
-  --bg-color: #f9f9f9;
-  --text-color: #333;
-  --container-bg: #fff;
-  --border-color: #e0e0e0;
-  --btn-bg: #007bff;
-  --btn-hover-bg: #0056b3;
-  --input-bg: #fff;
-  --input-border: #ccc;
-}
 
-/* Dark mode */
-.dark-mode {
-  --bg-color: #121212;
-  --text-color: #f5f5f5;
-  --container-bg: #1e1e1e;
-  --border-color: #444;
-  --btn-bg: #007bff;
-  --btn-hover-bg: #3399ff;
-  --input-bg: #2a2a2a;
-  --input-border: #555;
-  /* background-color: #1e1e1e;
-  border-color: #555;
-  color: #fff; */
-}
 
 section {
-  font-family: Arial, sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  margin: 0;
-  padding: 0;
-  padding-top: 30px;
-  width: 100%;
-  max-height: 100vh;
-  height: 100%;
-  transition: background-color 0.3s, color 0.3s;
+
 }
 
 h1 p {
