@@ -67,7 +67,7 @@ p {
   margin-top: 20px;
   border: 0px solid #ddd;
   border-radius: 5px;
-  background-color: #fdfdfd;
+  /* background-color: #fdfdfd; */
 }
 .file-item {
   display: flex;

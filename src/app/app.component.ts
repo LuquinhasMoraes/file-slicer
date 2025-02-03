@@ -96,14 +96,14 @@ export class AppComponent implements OnInit  {
 
   toggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;
-    const container = document.querySelector('.container');
+    const container = document.querySelectorAll('.container');
     const section = document.querySelector('section');
     if (this.isDarkMode) {
-      this.renderer.addClass(container, 'dark-mode');
+      container.forEach(c => this.renderer.addClass(c, 'dark-mode'))
       this.renderer.addClass(section, 'dark-mode');
       localStorage.setItem('darkMode', 'enabled');
     } else {
-      this.renderer.removeClass(container, 'dark-mode');
+      container.forEach(c => this.renderer.removeClass(c, 'dark-mode'))
       this.renderer.removeClass(section, 'dark-mode');
       localStorage.setItem('darkMode', 'disabled');
     }

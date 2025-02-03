@@ -3,7 +3,6 @@
   flex-direction: column;
   align-items: center;
   padding: 10px;
-  background-color: #ffffff;
   font-family: 'Arial', sans-serif;
 }
 
@@ -43,7 +42,7 @@
 
 .page-info {
   font-size: 14px;
-  color: #333;
+  color: var(--text-color);
 }
 
 .page-size {
@@ -55,7 +54,7 @@
 
 .page-size label {
   font-size: 14px;
-  color: #333;
+  color: var(--text-color);
 }
 
 .page-size select {
